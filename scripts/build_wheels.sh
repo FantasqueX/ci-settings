@@ -2,10 +2,14 @@ set -ex
 
 source $(dirname $0)/vars.sh
 
-# Apple doesn't incluide realpath
+# macos doesn't have realpath
 function realpath() {
     [[ "$1" = /* ]] && echo "$1" || echo "$PWD/${1#./}"
 }
+
+platform_tag=""
+if [ "$(uname)" == "Linux" ]; then
+    platform_tag="--plat-name manylinux2010_x86_64"
 
 python="$1"
 sdist_path="$(realpath "$2")"
@@ -26,7 +30,7 @@ done
 
 for package in $(ls); do
     pushd "$package"
-    python setup.py bdist_wheel
+    python setup.py bdist_wheel $platform_tag
     mv dist/* "$wheels"
     popd
 done
